@@ -20,7 +20,7 @@ namespace RobotsSharpParser
         public HashSet<string> Allowed { get; set; }
         public HashSet<string> Disallowed { get; set; }
 
-        public bool IsAllowed(string path) => Allowed.Contains(path);
-        public bool IsDisallowed(string path) =>  Disallowed.Contains(path);
+        public bool IsAllowed(string path) => Allowed.Any(x => path.Contains(x));
+        public bool IsDisallowed(string path) =>  Disallowed.Any(x => path.Contains(x));
     }
 }

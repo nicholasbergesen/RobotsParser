@@ -18,7 +18,7 @@ namespace UnitTests
             {
                 robots.Load(sr.ReadToEnd());
                 Assert.AreEqual(robots.UserAgents.Count, robots.UserAgentCount());
-                Assert.IsTrue(robots.IsPathDisallowed("/shop/"));
+                Assert.IsTrue(robots.IsPathDisallowed("https://loot.co.za/shop/"));
                 Assert.IsTrue(robots.IsPathDisallowed("/cgi-bin/"));
                 Assert.IsTrue(robots.IsPathDisallowed("/refer.html"));
                 Assert.IsTrue(robots.IsPathDisallowed("/search/"));
@@ -27,7 +27,7 @@ namespace UnitTests
                 Assert.AreEqual(1, robots.GetCrawlDelay());
 
                 Assert.IsTrue(robots.IsPathDisallowed("/", "Ahrefsbot"));
-                Assert.IsFalse(robots.IsPathDisallowed("/images/", "Ahrefsbot"));
+                Assert.IsFalse(robots.IsPathDisallowed("", "Ahrefsbot"));
 
                 Assert.AreEqual("http://www.loot.co.za/index.xml.gz", robots.Sitemaps.First());
             }
