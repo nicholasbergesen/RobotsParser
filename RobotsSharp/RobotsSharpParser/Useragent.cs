@@ -11,6 +11,8 @@ namespace RobotsSharpParser
         public Useragent(string name)
         {
             Name = name;
+            Allowed = new HashSet<string>();
+            Disallowed = new HashSet<string>();
         }
 
         public string Name { get; private set; }
@@ -18,14 +20,7 @@ namespace RobotsSharpParser
         public HashSet<string> Allowed { get; set; }
         public HashSet<string> Disallowed { get; set; }
 
-        public bool IsAllowed(string path)
-        {
-            return Allowed.Contains(path);
-        }
-
-        public bool IsDisallowed(string path)
-        {
-            return Disallowed.Contains(path);
-        }
+        public bool IsAllowed(string path) => Allowed.Contains(path);
+        public bool IsDisallowed(string path) =>  Disallowed.Contains(path);
     }
 }

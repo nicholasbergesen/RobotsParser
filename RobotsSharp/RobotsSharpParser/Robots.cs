@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -15,45 +14,39 @@ namespace RobotsSharpParser
     {
         void Load();
         Task LoadAsync();
+        void Load(string robotsContent);
+        Task LoadAsync(string robotsContent);
         int UserAgentCount();
-        IEnumerable<string> UserAgents { get; }
+        IReadOnlyList<Useragent> UserAgents { get; }
         IEnumerable<string> Sitemaps { get; }
-        int Crawldelay { get; }
         IEnumerable<string> GetAllowedPaths(string userAgent = "*");
         IEnumerable<string> GetDisallowedPaths(string userAgent = "*");
-        bool IsPathAllowed(string path, string userAgent = "*");
+        bool IsPathAllowed(string path, string userAgent = "*"); 
         bool IsPathDisallowed(string path, string userAgent = "*");
-        IEnumerable<tUrl> GetSitemapLinks(string sitemapUrl = "");
-        Task<IEnumerable<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "");
+        int GetCrawlDelay(string userAgent = "*");
+        IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "");
+        Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "");
     }
 
-    public class Robots : IRobots
+    public class Robots : IRobots, IDisposable
     {
         Uri _robotsUri;
         private string _robots;
         private HttpClient _client = new HttpClient();
 
-        private class Const
-        {
-            public const string Disallow = "Disallow:";
-            public const short DisallowLength = 9;
-
-            public const string Allow = "Allow:";
-            public const short AllowLength = 6;
-
-            public const string UserAgent = "User-agent:";
-            public const short UserAgentLength = 11;
-
-            public const string Sitemap = "Sitemap:";
-            public const short SitemapLength = 8;
-
-            public const string Crawldelay = "Crawl-delay:";
-            public const short CrawldelayLength = 12;
-        }
-
         public Robots(Uri websiteUri, string userAgent)
         {
             if (Uri.TryCreate(websiteUri, "robots.txt", out Uri robots))
+                _robotsUri = robots;
+            else
+                throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
+
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
+        }
+
+        public Robots(string websiteUri, string userAgent)
+        {
+            if (Uri.TryCreate(websiteUri + "robots.txt", UriKind.Absolute, out Uri robots))
                 _robotsUri = robots;
             else
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
@@ -70,6 +63,18 @@ namespace RobotsSharpParser
         public void Load()
         {
             LoadAsync().Wait();
+            ParseRobotsAsync().Wait();
+        }
+
+        public async Task LoadAsync(string robotsContent)
+        {
+            _robots = robotsContent;
+            await ParseRobotsAsync();
+        }
+
+        public void Load(string robotsContent)
+        {
+            _robots = robotsContent;
             ParseRobotsAsync().Wait();
         }
 
@@ -107,7 +112,7 @@ namespace RobotsSharpParser
         }
 
         private List<Useragent> _userAgents;
-        public IEnumerable<Useragent> UserAgents
+        public IReadOnlyList<Useragent> UserAgents
         {
             get
             {
@@ -128,31 +133,14 @@ namespace RobotsSharpParser
             }
         }
 
-        IEnumerable<string> IRobots.UserAgents => throw new NotImplementedException();
+        public IEnumerable<string> GetAllowedPaths(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Allowed;
+        public IEnumerable<string> GetDisallowedPaths(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Disallowed;
+        public bool IsPathAllowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsAllowed(path);
+        public bool IsPathDisallowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
+        public int UserAgentCount() => _userAgents.Count;
+        public int GetCrawlDelay(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Crawldelay;
 
-        public int Crawldelay => throw new NotImplementedException();
-
-        public IEnumerable<string> GetAllowedPaths(string userAgent = "*")
-        {
-            return UserAgents.First(x => x.Name == userAgent).Allowed;
-        }
-
-        public bool IsPathAllowed(string path, string userAgent = "*")
-        {
-            return UserAgents.First(x => x.Name == userAgent).IsAllowed(path);
-        }
-
-        public IEnumerable<string> GetDisallowedPaths(string userAgent = "*")
-        {
-            return UserAgents.First(x => x.Name == userAgent).Disallowed;
-        }
-
-        public bool IsPathDisallowed(string path, string userAgent = "*")
-        {
-            return UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
-        }
-
-        public async Task<IEnumerable<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
+        public async Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
         {
             List<tUrl> sitemapLinks = new List<tUrl>();
 
@@ -183,7 +171,7 @@ namespace RobotsSharpParser
             }
         }
 
-        public IEnumerable<tUrl> GetSitemapLinks(string sitemapUrl = "")
+        public IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "")
         {
             return GetSitemapLinksAsync(sitemapUrl).Result;
         }
@@ -206,9 +194,6 @@ namespace RobotsSharpParser
             }
         }
 
-        public int UserAgentCount()
-        {
-            return _userAgents.Count;
-        }
+        public void Dispose() => _client.Dispose();
     }
 }
