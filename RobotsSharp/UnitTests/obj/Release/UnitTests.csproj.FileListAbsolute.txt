@@ -1,0 +1,16 @@
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\lootRobots.txt
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\UnitTests.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\UnitTests.pdb
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.TestFramework.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\RobotsSharpParser.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\RobotsSharpParser.pdb
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.TestFramework.xml
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\bin\Release\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\obj\Release\UnitTests.csprojResolveAssemblyReference.cache
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\obj\Release\UnitTests.csproj.CoreCompileInputs.cache
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\obj\Release\UnitTests.dll
+C:\Working\git\robotsSharp\RobotsSharp\UnitTests\obj\Release\UnitTests.pdb
