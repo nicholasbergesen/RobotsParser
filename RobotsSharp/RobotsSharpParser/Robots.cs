@@ -75,32 +75,29 @@ namespace RobotsSharpParser
 
         private async Task ParseRobotsAsync()
         {
-            _userAgents = new HashSet<string>();
-            _disallow = new Dictionary<string, HashSet<string>>();
-            _allow = new Dictionary<string, HashSet<string>>();
+            _userAgents = new List<Useragent>();
             _sitemaps = new HashSet<string>();
 
             string line;
             using (StringReader sr = new StringReader(_robots))
             {
-                string currentAgent = "*";
+                Useragent currentAgent = new Useragent("*");
                 while ((line = await sr.ReadLineAsync()) != null)
                 {
                     if (line.StartsWith(Const.UserAgent))
                     {
-                        currentAgent = line.Substring(Const.UserAgentLength, line.Length - Const.UserAgentLength).Trim(' ');
+                        string name = line.Substring(Const.UserAgentLength, line.Length - Const.UserAgentLength).Trim(' ');
+                        currentAgent = new Useragent(name);
                         _userAgents.Add(currentAgent);
-                        _allow[currentAgent] = new HashSet<string>();
-                        _disallow[currentAgent] = new HashSet<string>();
                     }
                     else if (line.StartsWith(Const.Disallow))
-                        _disallow[currentAgent].Add(line.Substring(Const.DisallowLength, line.Length - Const.DisallowLength).Trim(' '));
+                        currentAgent.Disallowed.Add(line.Substring(Const.DisallowLength, line.Length - Const.DisallowLength).Trim(' '));
                     else if (line.StartsWith(Const.Allow))
-                        _allow[currentAgent].Add(line.Substring(Const.AllowLength, line.Length - Const.AllowLength).Trim(' '));
+                        currentAgent.Allowed.Add(line.Substring(Const.AllowLength, line.Length - Const.AllowLength).Trim(' '));
                     else if (line.StartsWith(Const.Sitemap))
                         _sitemaps.Add(line.Substring(Const.SitemapLength, line.Length - Const.SitemapLength).Trim(' '));
                     else if (line.StartsWith(Const.Crawldelay))
-                        Crawldelay = int.Parse(line.Substring(Const.CrawldelayLength, line.Length - Const.CrawldelayLength).Trim(' '));
+                        currentAgent.Crawldelay = int.Parse(line.Substring(Const.CrawldelayLength, line.Length - Const.CrawldelayLength).Trim(' '));
                     else if (line == string.Empty || line[0] == '#')
                         continue;
                     else
@@ -108,10 +105,9 @@ namespace RobotsSharpParser
                 }
             }
         }
-        public int Crawldelay { get; private set; }
 
-        private HashSet<string> _userAgents;
-        public IEnumerable<string> UserAgents
+        private List<Useragent> _userAgents;
+        public IEnumerable<Useragent> UserAgents
         {
             get
             {
@@ -132,30 +128,28 @@ namespace RobotsSharpParser
             }
         }
 
-        private Dictionary<string, HashSet<string>> _allow;
+        IEnumerable<string> IRobots.UserAgents => throw new NotImplementedException();
+
+        public int Crawldelay => throw new NotImplementedException();
+
         public IEnumerable<string> GetAllowedPaths(string userAgent = "*")
         {
-            return _allow[userAgent];
+            return UserAgents.First(x => x.Name == userAgent).Allowed;
         }
 
         public bool IsPathAllowed(string path, string userAgent = "*")
         {
-            if (_allow.TryGetValue(userAgent, out HashSet<string> allowed))
-                return allowed.Contains(path);
-            return false;
+            return UserAgents.First(x => x.Name == userAgent).IsAllowed(path);
         }
 
-        private Dictionary<string, HashSet<string>> _disallow;
         public IEnumerable<string> GetDisallowedPaths(string userAgent = "*")
         {
-            return _disallow[userAgent];
+            return UserAgents.First(x => x.Name == userAgent).Disallowed;
         }
 
         public bool IsPathDisallowed(string path, string userAgent = "*")
         {
-            if (_disallow.TryGetValue(userAgent, out HashSet<string> disallowed))
-                return disallowed.Contains(path);
-            return false;
+            return UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
         }
 
         public async Task<IEnumerable<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")

@@ -49,6 +49,7 @@
     <Compile Include="sitemap.cs">
       <DependentUpon>sitemap.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Useragent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="siteindex.xsd">
