@@ -1,5 +1,5 @@
-C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csproj.CoreCompileInputs.cache
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharpParser.dll
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharpParser.pdb
+C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csproj.CoreCompileInputs.cache
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.dll
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.pdb
