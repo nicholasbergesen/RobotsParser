@@ -1,0 +1,9 @@
+C:\Working\git\robotsSharp\RobotsSharp\obj\Debug\RobotsSharpConsole.csproj.CoreCompileInputs.cache
+C:\Working\git\robotsSharp\RobotsSharp\bin\Debug\RobotsSharp.exe.config
+C:\Working\git\robotsSharp\RobotsSharp\bin\Debug\RobotsSharp.exe
+C:\Working\git\robotsSharp\RobotsSharp\bin\Debug\RobotsSharp.pdb
+C:\Working\git\robotsSharp\RobotsSharp\bin\Debug\RobotsSharpParser.dll
+C:\Working\git\robotsSharp\RobotsSharp\bin\Debug\RobotsSharpParser.pdb
+C:\Working\git\robotsSharp\RobotsSharp\obj\Debug\RobotsSharpConsole.csprojResolveAssemblyReference.cache
+C:\Working\git\robotsSharp\RobotsSharp\obj\Debug\RobotsSharp.exe
+C:\Working\git\robotsSharp\RobotsSharp\obj\Debug\RobotsSharp.pdb
