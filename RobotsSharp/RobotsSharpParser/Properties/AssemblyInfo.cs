@@ -5,13 +5,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RobotsSharpParser")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("RobotsSharp")]
+[assembly: AssemblyDescription("Parse Robots.txt")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RobotsSharpParser")]
+[assembly: AssemblyCompany("Nicholas Bergesen")]
+[assembly: AssemblyProduct("RobotsSharp")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("Nicholas Bergesen")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
