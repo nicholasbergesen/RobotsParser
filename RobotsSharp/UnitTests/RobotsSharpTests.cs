@@ -32,5 +32,13 @@ namespace UnitTests
                 Assert.AreEqual("http://www.loot.co.za/index.xml.gz", robots.Sitemaps.First());
             }
         }
+
+        //[TestMethod]
+        public void MockReal()
+        {
+            Robots robots = new Robots("https://v4-alpha.getbootstrap.com", "RobotsUnitTest");
+            robots.Load();
+            var temp = robots.GetSitemapLinks();
+        }
     }
 }

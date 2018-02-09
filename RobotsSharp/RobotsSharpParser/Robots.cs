@@ -36,7 +36,7 @@ namespace RobotsSharpParser
 
         public Robots(Uri websiteUri, string userAgent)
         {
-            if (Uri.TryCreate(websiteUri, "robots.txt", out Uri robots))
+            if (Uri.TryCreate(websiteUri, "/robots.txt", out Uri robots))
                 _robotsUri = robots;
             else
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
@@ -46,7 +46,7 @@ namespace RobotsSharpParser
 
         public Robots(string websiteUri, string userAgent)
         {
-            if (Uri.TryCreate(websiteUri + "robots.txt", UriKind.Absolute, out Uri robots))
+            if (Uri.TryCreate(websiteUri + "/robots.txt", UriKind.Absolute, out Uri robots))
                 _robotsUri = robots;
             else
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
@@ -168,6 +168,12 @@ namespace RobotsSharpParser
                         sitemapLinks.AddRange(urlSet.url);
                     }
                 }
+            }
+            else
+            {
+                siteIndexStream = await _client.GetStreamAsync(siteIndex);
+                if(TryDeserializeXMLStream(siteIndexStream, out urlset urlSet))
+                    sitemapLinks.AddRange(urlSet.url);
             }
         }
 
