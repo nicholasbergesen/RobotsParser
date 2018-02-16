@@ -89,7 +89,7 @@ namespace RobotsSharpParser
                 Useragent currentAgent = new Useragent("*");
                 while ((line = await sr.ReadLineAsync()) != null)
                 {
-                    if (line.StartsWith(Const.UserAgent))
+                    if (line.ToLower().StartsWith(Const.UserAgent.ToLower()))
                     {
                         string name = line.Substring(Const.UserAgentLength, line.Length - Const.UserAgentLength).Trim(' ');
                         currentAgent = new Useragent(name);

@@ -33,10 +33,10 @@ namespace UnitTests
             }
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void MockReal()
         {
-            Robots robots = new Robots("https://v4-alpha.getbootstrap.com", "RobotsUnitTest");
+            Robots robots = new Robots("https://www.privateproperty.co.za", "RobotsUnitTest");
             robots.Load();
             var temp = robots.GetSitemapLinks();
         }
