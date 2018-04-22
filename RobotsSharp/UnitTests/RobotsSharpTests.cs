@@ -40,5 +40,29 @@ namespace UnitTests
             robots.Load();
             var temp = robots.GetSitemapLinks();
         }
+
+        [TestMethod]
+        public void ParseErrorTestTakealot()
+        {
+            Robots robots = new Robots("https://www.takealot.com", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+            robots.Load();
+            var temp = robots.GetSitemapLinks();
+        }
+
+        [TestMethod]
+        public void ParseErrorTestProperty24()
+        {
+            Robots robots = new Robots("https://www.property24.com", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+            robots.Load();
+            var temp = robots.GetSitemapLinks();
+        }
+
+        [TestMethod]
+        public void ParseErrorTestLoot()
+        {
+            Robots robots = new Robots("http://www.loot.co.za", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36", true);
+            robots.Load();
+            var temp = robots.GetSitemapLinks();
+        }
     }
 }

@@ -4,3 +4,8 @@ C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpPa
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.dll
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.pdb
 C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csprojResolveAssemblyReference.cache
+D:\working\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharpParser.dll
+D:\working\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharpParser.pdb
+D:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csproj.CoreCompileInputs.cache
+D:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.dll
+D:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.pdb

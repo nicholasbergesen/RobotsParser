@@ -1,1 +1,1 @@
-.\nuget.exe pack "C:\Working\git\robotsSharp\RobotsSharp\RobotsSharpParser\RobotsSharpParser.csproj" -Build -Properties Configuration="release;Authors='Nicholas Bergesen'"
+.\nuget.exe pack "D:\working\robotsSharp\RobotsSharp\RobotsSharpParser\RobotsSharpParser.csproj" -Build -Properties Configuration="Release;Authors='Nicholas Bergesen'"
