@@ -186,9 +186,7 @@ namespace RobotsSharpParser
 
         private async Task<List<tUrl>> GetSitemalLinksInternal(List<tUrl> sitemapLinks, string siteIndex)
         {
-            Stream stream = await _client.GetStreamAsync(siteIndex);
-            if (siteIndex.EndsWith(".gz"))
-                stream = new GZipStream(stream, CompressionMode.Decompress);
+            Stream stream = await GetStreamAsync(siteIndex);
             if (TryDeserializeXMLStream(stream, out sitemapindex sitemapIndex))
             {
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
@@ -197,12 +195,10 @@ namespace RobotsSharpParser
             else
             {
                 stream.Close();
-                stream = await _client.GetStreamAsync(siteIndex);
-                if (siteIndex.EndsWith(".gz"))
-                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                stream = await GetStreamAsync(siteIndex);
 
                 if (_enableErrorCorrection)
-                    stream = await RemoveMalformedTagsFromStream(stream);
+                    stream = await RemoveMalformedTagsFromStreamAsync(stream);
 
                 if (TryDeserializeXMLStream(stream, out urlset urlSet) && urlSet.url != null)
                     return urlSet.url.ToList();
@@ -211,7 +207,15 @@ namespace RobotsSharpParser
             return sitemapLinks;
         }
 
-        private static async Task<Stream> RemoveMalformedTagsFromStream(Stream stream)
+        private async Task<Stream> GetStreamAsync(string url)
+        {
+            Stream stream = await _client.GetStreamAsync(url);
+            if (url.EndsWith(".gz"))
+                stream = new GZipStream(stream, CompressionMode.Decompress);
+            return stream;
+        }
+
+        private static async Task<Stream> RemoveMalformedTagsFromStreamAsync(Stream stream)
         {
             using (StreamReader sr = new StreamReader(stream))
             {
