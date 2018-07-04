@@ -22,19 +22,32 @@ namespace RobotsSharpParser
         IEnumerable<string> Sitemaps { get; }
         IEnumerable<string> GetAllowedPaths(string userAgent = "*");
         IEnumerable<string> GetDisallowedPaths(string userAgent = "*");
-        bool IsPathAllowed(string path, string userAgent = "*"); 
+        bool IsPathAllowed(string path, string userAgent = "*");
         bool IsPathDisallowed(string path, string userAgent = "*");
         int GetCrawlDelay(string userAgent = "*");
         IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "");
         Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "");
     }
 
+    public class ProgressEventArgs : EventArgs
+    {
+        public string ProgressMessage;
+
+        public ProgressEventArgs(string progressMessage)
+        {
+            ProgressMessage = progressMessage;
+        }
+    }
+
     public class Robots : IRobots, IDisposable
     {
-        Uri _robotsUri;
+        private Uri _robotsUri;
         private string _robots;
         private HttpClient _client = new HttpClient();
         private bool _enableErrorCorrection;
+
+        public event ProgressEventHandler OnPorgress;
+        public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
         public Robots(Uri websiteUri, string userAgent, bool enableErrorCorrection = false)
         {
@@ -84,6 +97,13 @@ namespace RobotsSharpParser
             _client.DefaultRequestHeaders.Connection.Add("keep-alive");
             _client.DefaultRequestHeaders.Host = robots.Host;
             _client.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache"));
+        }
+
+        private void RaiseOnProgress(string progressMessage)
+        {
+            if (OnPorgress == null)
+                return;
+            OnPorgress(this, new ProgressEventArgs(progressMessage));
         }
 
         public async Task LoadAsync()
@@ -171,48 +191,61 @@ namespace RobotsSharpParser
         public int UserAgentCount() => _userAgents.Count;
         public int GetCrawlDelay(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Crawldelay;
 
+        private List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
+
         public async Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
         {
-            List<tUrl> sitemapLinks = new List<tUrl>(1000000);
-
             if(sitemapUrl == string.Empty)
                 foreach (var siteIndex in _sitemaps)
-                    await GetSitemalLinksInternal(sitemapLinks, siteIndex);
+                    await GetSitemalLinksInternal(siteIndex);
             else
-                await GetSitemalLinksInternal(sitemapLinks, sitemapUrl);
+                await GetSitemalLinksInternal(sitemapUrl);
 
-            return sitemapLinks;
+            return _sitemapLinks;
         }
 
-        private async Task<List<tUrl>> GetSitemalLinksInternal(List<tUrl> sitemapLinks, string siteIndex)
+        private async Task GetSitemalLinksInternal(string siteIndex)
         {
             Stream stream = await GetStreamAsync(siteIndex);
             if (TryDeserializeXMLStream(stream, out sitemapindex sitemapIndex))
             {
+                int sitemapCount = 0;
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
-                    sitemapLinks.AddRange(await GetSitemalLinksInternal(sitemapLinks, sitemap.loc));
+                {
+                    await GetSitemalLinksInternal(sitemap.loc);
+                    RaiseOnProgress($"{sitemapCount++ / sitemapIndex.sitemap.Length}:##");
+                }
             }
             else
             {
                 stream.Close();
                 stream = await GetStreamAsync(siteIndex);
+                if(stream == null)
+                    stream = await GetStreamAsync(siteIndex);
+                if (stream == null)
+                    return;
 
                 if (_enableErrorCorrection)
                     stream = await RemoveMalformedTagsFromStreamAsync(stream);
 
                 if (TryDeserializeXMLStream(stream, out urlset urlSet) && urlSet.url != null)
-                    return urlSet.url.ToList();
+                    _sitemapLinks.AddRange(urlSet.url.ToList());
             }
-
-            return sitemapLinks;
         }
 
         private async Task<Stream> GetStreamAsync(string url)
         {
-            Stream stream = await _client.GetStreamAsync(url);
-            if (url.EndsWith(".gz"))
-                stream = new GZipStream(stream, CompressionMode.Decompress);
-            return stream;
+            try
+            {
+                Stream stream = await _client.GetStreamAsync(url);
+                if (url.EndsWith(".gz"))
+                    stream = new GZipStream(stream, CompressionMode.Decompress);
+                return stream;
+            }
+            catch(Exception)
+            {
+                return null;
+            }
         }
 
         private static async Task<Stream> RemoveMalformedTagsFromStreamAsync(Stream stream)

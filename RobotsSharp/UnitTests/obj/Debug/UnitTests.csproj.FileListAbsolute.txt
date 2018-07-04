@@ -43,8 +43,8 @@ D:\working\RobotsSharpParser\RobotsSharp\UnitTests\bin\Debug\RobotsSharpParser.d
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\bin\Debug\RobotsSharpParser.pdb
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.xml
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml
-D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csprojResolveAssemblyReference.cache
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csproj.CoreCompileInputs.cache
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csproj.CopyComplete
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.dll
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.pdb
+D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csprojAssemblyReference.cache
