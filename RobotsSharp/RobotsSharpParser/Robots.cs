@@ -195,7 +195,7 @@ namespace RobotsSharpParser
 
         public async Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
         {
-            if(sitemapUrl == string.Empty)
+            if (sitemapUrl == string.Empty)
                 foreach (var siteIndex in _sitemaps)
                     await GetSitemalLinksInternal(siteIndex);
             else
@@ -262,7 +262,12 @@ namespace RobotsSharpParser
 
         public IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "")
         {
-            return GetSitemapLinksAsync(sitemapUrl).Result;
+            var task = GetSitemapLinksAsync(sitemapUrl);
+            task.Wait();
+            if (task.IsFaulted)
+                throw task.Exception;
+            else
+                return task.Result;
         }
 
         private bool TryDeserializeXMLStream<T>(Stream stream, out T xmlValue)
