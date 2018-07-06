@@ -204,8 +204,6 @@ namespace RobotsSharpParser
             return _sitemapLinks;
         }
 
-        private int sitemapCount = 0;
-
         private async Task GetSitemalLinksInternal(string siteIndex)
         {
             Stream stream = await GetStreamAsync(siteIndex);
@@ -217,7 +215,6 @@ namespace RobotsSharpParser
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
                 {
                     await GetSitemalLinksInternal(sitemap.loc);
-                    RaiseOnProgress($"{sitemapCount++ / (_sitemapLinks.Count + sitemapIndex.sitemap.Length)}:##");
                 }
             }
             else
@@ -233,7 +230,10 @@ namespace RobotsSharpParser
                     stream = await RemoveMalformedTagsFromStreamAsync(stream);
 
                 if (TryDeserializeXMLStream(stream, out urlset urlSet) && urlSet.url != null)
+                {
                     _sitemapLinks.AddRange(urlSet.url.ToList());
+                    RaiseOnProgress($"{_sitemapLinks.Count}");
+                }
             }
         }
 
