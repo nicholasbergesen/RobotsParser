@@ -207,6 +207,9 @@ namespace RobotsSharpParser
         private async Task GetSitemalLinksInternal(string siteIndex)
         {
             Stream stream = await GetStreamAsync(siteIndex);
+            if (stream == null)
+                return;
+
             if (TryDeserializeXMLStream(stream, out sitemapindex sitemapIndex))
             {
                 int sitemapCount = 0;
@@ -220,7 +223,7 @@ namespace RobotsSharpParser
             {
                 stream.Close();
                 stream = await GetStreamAsync(siteIndex);
-                if(stream == null)
+                if (stream == null)
                     stream = await GetStreamAsync(siteIndex);
                 if (stream == null)
                     return;
@@ -242,7 +245,7 @@ namespace RobotsSharpParser
                     stream = new GZipStream(stream, CompressionMode.Decompress);
                 return stream;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return null;
             }
