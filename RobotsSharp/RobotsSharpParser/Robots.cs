@@ -204,6 +204,8 @@ namespace RobotsSharpParser
             return _sitemapLinks;
         }
 
+        private int sitemapCount = 0;
+
         private async Task GetSitemalLinksInternal(string siteIndex)
         {
             Stream stream = await GetStreamAsync(siteIndex);
@@ -212,11 +214,10 @@ namespace RobotsSharpParser
 
             if (TryDeserializeXMLStream(stream, out sitemapindex sitemapIndex))
             {
-                int sitemapCount = 0;
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
                 {
                     await GetSitemalLinksInternal(sitemap.loc);
-                    RaiseOnProgress($"{sitemapCount++ / sitemapIndex.sitemap.Length}:##");
+                    RaiseOnProgress($"{sitemapCount++ / (_sitemapLinks.Count + sitemapIndex.sitemap.Length)}:##");
                 }
             }
             else
