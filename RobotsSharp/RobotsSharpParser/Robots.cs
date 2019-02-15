@@ -46,7 +46,7 @@ namespace RobotsSharpParser
         private HttpClient _client = new HttpClient();
         private bool _enableErrorCorrection;
 
-        public event ProgressEventHandler OnPorgress;
+        public event ProgressEventHandler OnProgress;
         public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
         public Robots(Uri websiteUri, string userAgent, bool enableErrorCorrection = false)
@@ -101,9 +101,9 @@ namespace RobotsSharpParser
 
         private void RaiseOnProgress(string progressMessage)
         {
-            if (OnPorgress == null)
+            if (OnProgress == null)
                 return;
-            OnPorgress(this, new ProgressEventArgs(progressMessage));
+            OnProgress(this, new ProgressEventArgs(progressMessage));
         }
 
         public async Task LoadAsync()
