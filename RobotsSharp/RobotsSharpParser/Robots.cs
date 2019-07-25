@@ -5,7 +5,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -43,7 +45,7 @@ namespace RobotsSharpParser
     {
         private Uri _robotsUri;
         private string _robots;
-        private HttpClient _client = new HttpClient();
+        private HttpClient _client;
         private bool _enableErrorCorrection;
 
         public event ProgressEventHandler OnProgress;
@@ -57,7 +59,9 @@ namespace RobotsSharpParser
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
 
             _enableErrorCorrection = enableErrorCorrection;
-
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate;
+            _client = new HttpClient(handler, true);
             _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xhtml+xml"));
@@ -82,7 +86,9 @@ namespace RobotsSharpParser
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
 
             _enableErrorCorrection = enableErrorCorrection;
-
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate;
+            _client = new HttpClient(handler, true);
             _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xhtml+xml"));
@@ -206,11 +212,14 @@ namespace RobotsSharpParser
 
         private async Task GetSitemalLinksInternal(string siteIndex)
         {
-            Stream stream = await GetStreamAsync(siteIndex);
-            if (stream == null)
-                return;
+            MemoryStream stream = new MemoryStream();
+            Stream rawstream = await _client.GetStreamAsync(siteIndex);
+            rawstream.CopyTo(stream);
 
-            if (TryDeserializeXMLStream(stream, out sitemapindex sitemapIndex))
+            if (!TryDecompress(stream, out byte[] bytes))
+                bytes = stream.ToArray();
+
+            if (TryDeserializeXMLStream(bytes, out sitemapindex sitemapIndex))
             {
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
                 {
@@ -219,17 +228,7 @@ namespace RobotsSharpParser
             }
             else
             {
-                stream.Close();
-                stream = await GetStreamAsync(siteIndex);
-                if (stream == null)
-                    stream = await GetStreamAsync(siteIndex);
-                if (stream == null)
-                    return;
-
-                if (_enableErrorCorrection)
-                    stream = await RemoveMalformedTagsFromStreamAsync(stream);
-
-                if (TryDeserializeXMLStream(stream, out urlset urlSet) && urlSet.url != null)
+                if (TryDeserializeXMLStream(bytes, out urlset urlSet) && urlSet.url != null)
                 {
                     _sitemapLinks.AddRange(urlSet.url.ToList());
                     RaiseOnProgress($"{_sitemapLinks.Count}");
@@ -237,18 +236,29 @@ namespace RobotsSharpParser
             }
         }
 
-        private async Task<Stream> GetStreamAsync(string url)
+        private bool TryDeserializeXMLStream<T>(byte[] bytes, out T xmlValue)
+        {
+            using (StringReader sr = new StringReader(Encoding.UTF8.GetString(bytes)))
+            {
+                return TryDeserializeXMLStream(sr, out xmlValue);
+            }
+        }
+
+        private bool TryDeserializeXMLStream<T>(TextReader reader, out T xmlValue)
         {
             try
             {
-                Stream stream = await _client.GetStreamAsync(url);
-                if (url.EndsWith(".gz"))
-                    stream = new GZipStream(stream, CompressionMode.Decompress);
-                return stream;
+                using (XmlReader xmlReader = XmlReader.Create(reader))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(T));
+                    xmlValue = (T)serializer.Deserialize(xmlReader);
+                    return xmlValue != null;
+                }
             }
-            catch (Exception)
+            catch
             {
-                return null;
+                xmlValue = default(T);
+                return false;
             }
         }
 
@@ -274,20 +284,25 @@ namespace RobotsSharpParser
                 return task.Result;
         }
 
-        private bool TryDeserializeXMLStream<T>(Stream stream, out T xmlValue)
+
+        private bool TryDecompress(Stream stream, out byte[] bytes)
         {
             try
             {
-                using (XmlReader xmlReader = XmlReader.Create(stream))
+                using (MemoryStream decompressedStream = new MemoryStream())
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(T));
-                    xmlValue = (T)serializer.Deserialize(xmlReader);
-                    return xmlValue != null;
+                    stream.Position = 0;
+                    using (GZipStream decompressionStream = new GZipStream(stream, CompressionMode.Decompress))
+                    {
+                        decompressionStream.CopyTo(decompressedStream);
+                        bytes = decompressedStream.ToArray();
+                    }
                 }
+                return true;
             }
             catch
             {
-                xmlValue = default(T);
+                bytes = null;
                 return false;
             }
         }

@@ -16,3 +16,9 @@ D:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSha
 D:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.dll
 D:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.pdb
 D:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.csprojAssemblyReference.cache
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\bin\Release\RobotsSharpParser.dll
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\bin\Release\RobotsSharpParser.pdb
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.csprojAssemblyReference.cache
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.csproj.CoreCompileInputs.cache
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.dll
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.pdb
