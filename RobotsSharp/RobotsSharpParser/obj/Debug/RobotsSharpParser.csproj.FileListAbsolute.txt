@@ -20,3 +20,4 @@ C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharp
 C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csproj.CoreCompileInputs.cache
 C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.dll
 C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.pdb
+C:\working\RobotsSharpParser\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csprojAssemblyReference.cache

@@ -29,12 +29,16 @@ namespace RobotsSharpParser
         int GetCrawlDelay(string userAgent = "*");
         IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "");
         Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "");
+        IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "");
+        Task<IReadOnlyList<tSitemap>> GetSitemapIndexesAsync(string sitemapUrl = "");
+        IReadOnlyList<tUrl> GetUrls(tSitemap tSitemap);
+        Task<IReadOnlyList<tUrl>> GetUrlsAsync(tSitemap tSitemap);
+
     }
 
     public class ProgressEventArgs : EventArgs
     {
         public string ProgressMessage;
-
         public ProgressEventArgs(string progressMessage)
         {
             ProgressMessage = progressMessage;
@@ -43,24 +47,24 @@ namespace RobotsSharpParser
 
     public class Robots : IRobots, IDisposable
     {
-        private Uri _robotsUri;
+        private readonly Uri _robotsUri;
         private string _robots;
         private HttpClient _client;
-        private bool _enableErrorCorrection;
 
         public event ProgressEventHandler OnProgress;
         public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
-        public Robots(Uri websiteUri, string userAgent, bool enableErrorCorrection = false)
+        public Robots(Uri websiteUri, string userAgent)
         {
             if (Uri.TryCreate(websiteUri, "/robots.txt", out Uri robots))
                 _robotsUri = robots;
             else
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
 
-            _enableErrorCorrection = enableErrorCorrection;
-            HttpClientHandler handler = new HttpClientHandler();
-            handler.AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate;
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+            };
             _client = new HttpClient(handler, true);
             _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
@@ -71,68 +75,23 @@ namespace RobotsSharpParser
             _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-GB"));
             _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US"));
             _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en"));
-            _client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue();
-            _client.DefaultRequestHeaders.CacheControl.NoCache = true;
+            _client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+            {
+                NoCache = true
+            };
             _client.DefaultRequestHeaders.Connection.Add("keep-alive");
             _client.DefaultRequestHeaders.Host = websiteUri.Host;
             _client.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache"));
         }
 
-        public Robots(string websiteUri, string userAgent, bool enableErrorCorrection = false)
-        {
-            if (Uri.TryCreate(websiteUri + "/robots.txt", UriKind.Absolute, out Uri robots))
-                _robotsUri = robots;
-            else
-                throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
-
-            _enableErrorCorrection = enableErrorCorrection;
-            HttpClientHandler handler = new HttpClientHandler();
-            handler.AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate;
-            _client = new HttpClient(handler, true);
-            _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xhtml+xml"));
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
-            _client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-ZA"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-GB"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en"));
-            _client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue();
-            _client.DefaultRequestHeaders.CacheControl.NoCache = true;
-            _client.DefaultRequestHeaders.Connection.Add("keep-alive");
-            _client.DefaultRequestHeaders.Host = robots.Host;
-            _client.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache"));
-        }
+        public Robots(string websiteUri, string userAgent)
+            : this(new Uri(websiteUri), userAgent) { }
 
         private void RaiseOnProgress(string progressMessage)
         {
             if (OnProgress == null)
                 return;
             OnProgress(this, new ProgressEventArgs(progressMessage));
-        }
-
-        public async Task LoadAsync()
-        {
-            _robots = await _client.GetStringAsync(_robotsUri);
-            await ParseRobotsAsync();
-        }
-
-        public void Load()
-        {
-            LoadAsync().Wait();
-        }
-
-        public async Task LoadAsync(string robotsContent)
-        {
-            _robots = robotsContent;
-            await ParseRobotsAsync();
-        }
-
-        public void Load(string robotsContent)
-        {
-            _robots = robotsContent;
-            ParseRobotsAsync().Wait();
         }
 
         private async Task ParseRobotsAsync()
@@ -168,6 +127,33 @@ namespace RobotsSharpParser
             }
         }
 
+        #region Interface Methods
+
+        public void Load()
+        {
+            LoadAsync().Wait();
+        }
+
+        public async Task LoadAsync()
+        {
+            _robots = await _client.GetStringAsync(_robotsUri);
+            await ParseRobotsAsync();
+        }
+
+        public void Load(string robotsContent)
+        {
+            _robots = robotsContent;
+            ParseRobotsAsync().Wait();
+        }
+
+        public async Task LoadAsync(string robotsContent)
+        {
+            _robots = robotsContent;
+            await ParseRobotsAsync();
+        }
+
+        public int UserAgentCount() => _userAgents.Count;
+
         private List<Useragent> _userAgents;
         public IReadOnlyList<Useragent> UserAgents
         {
@@ -194,23 +180,102 @@ namespace RobotsSharpParser
         public IEnumerable<string> GetDisallowedPaths(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Disallowed;
         public bool IsPathAllowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsAllowed(path);
         public bool IsPathDisallowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
-        public int UserAgentCount() => _userAgents.Count;
         public int GetCrawlDelay(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Crawldelay;
 
-        private List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
+        [Obsolete("Please make use of GetSitemapsFromSitemapIndex and GetUrlFromSitemap to load urls from the sitemap.")]
+        public IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "")
+        {
+            var task = GetSitemapLinksAsync(sitemapUrl);
+            task.Wait();
+            if (task.IsFaulted)
+                throw task.Exception;
+            else
+                return task.Result;
+        }
 
+        private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
+        [Obsolete("Please make use of GetSitemapsFromSitemapIndexAsync and GetUrlFromSitemapAsync to load urls from the sitemap.")]
         public async Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
         {
             if (sitemapUrl == string.Empty)
                 foreach (var siteIndex in _sitemaps)
-                    await GetSitemalLinksInternal(siteIndex);
+                    await GetSitemapLinksInternal(siteIndex);
             else
-                await GetSitemalLinksInternal(sitemapUrl);
+                await GetSitemapLinksInternal(sitemapUrl);
 
             return _sitemapLinks;
         }
 
-        private async Task GetSitemalLinksInternal(string siteIndex)
+        public IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "")
+        {
+            var task = GetSitemapIndexesAsync(sitemapUrl);
+            task.Wait();
+            if (task.IsFaulted)
+                throw task.Exception;
+            else
+                return task.Result;
+        }
+
+        public async Task<IReadOnlyList<tSitemap>> GetSitemapIndexesAsync(string sitemapUrl = "")
+        {
+
+            if (sitemapUrl == string.Empty)
+            {
+                List<tSitemap> _sitemapInternal = new List<tSitemap>(1000000);
+                foreach (var sitemap in _sitemaps)
+                    _sitemapInternal.AddRange(await GetSitemapsInternal(sitemap));
+                return _sitemapInternal;
+            }
+            else
+                return await GetSitemapsInternal(sitemapUrl);
+        }
+
+        public IReadOnlyList<tUrl> GetUrls(tSitemap tSitemap)
+        {
+            var task = GetUrlsAsync(tSitemap);
+            task.Wait();
+            if (task.IsFaulted)
+                throw task.Exception;
+            else
+                return task.Result;
+        }
+
+        public async Task<IReadOnlyList<tUrl>> GetUrlsAsync(tSitemap tSitemap)
+        {
+            if (tSitemap == null)
+                throw new ArgumentNullException(nameof(tSitemap), "sitemap requires a value");
+
+            MemoryStream stream = new MemoryStream();
+            Stream rawstream = await _client.GetStreamAsync(tSitemap.loc);
+            rawstream.CopyTo(stream);
+
+            if (!TryDecompress(stream, out byte[] bytes))
+                bytes = stream.ToArray();
+
+            if (TryDeserializeXMLStream(bytes, out urlset urlSet) && urlSet.url != null)
+                return urlSet.url;
+            else
+                throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
+        }
+
+        #endregion
+
+        private async Task<IReadOnlyList<tSitemap>> GetSitemapsInternal(string sitemapUrl)
+        {
+            MemoryStream stream = new MemoryStream();
+            Stream rawstream = await _client.GetStreamAsync(sitemapUrl);
+            rawstream.CopyTo(stream);
+
+            if (!TryDecompress(stream, out byte[] bytes))
+                bytes = stream.ToArray();
+
+            if (TryDeserializeXMLStream(bytes, out sitemapindex sitemapIndex))
+                return sitemapIndex.sitemap;
+            else
+                throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
+        }
+
+        private async Task GetSitemapLinksInternal(string siteIndex)
         {
             MemoryStream stream = new MemoryStream();
             Stream rawstream = await _client.GetStreamAsync(siteIndex);
@@ -223,7 +288,7 @@ namespace RobotsSharpParser
             {
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
                 {
-                    await GetSitemalLinksInternal(sitemap.loc);
+                    await GetSitemapLinksInternal(sitemap.loc);
                 }
             }
             else
@@ -257,33 +322,10 @@ namespace RobotsSharpParser
             }
             catch
             {
-                xmlValue = default(T);
+                xmlValue = default;
                 return false;
             }
         }
-
-        private static async Task<Stream> RemoveMalformedTagsFromStreamAsync(Stream stream)
-        {
-            using (StreamReader sr = new StreamReader(stream))
-            {
-                string streamContent = await sr.ReadToEndAsync();
-                streamContent.Replace("<loc/>", "");
-                stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(streamContent));
-            }
-
-            return stream;
-        }
-
-        public IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "")
-        {
-            var task = GetSitemapLinksAsync(sitemapUrl);
-            task.Wait();
-            if (task.IsFaulted)
-                throw task.Exception;
-            else
-                return task.Result;
-        }
-
 
         private bool TryDecompress(Stream stream, out byte[] bytes)
         {
