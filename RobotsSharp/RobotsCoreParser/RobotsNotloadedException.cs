@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace RobotsSharpParser
+namespace RobotsCoreParser
 {
     public class RobotsNotloadedException : Exception
     {

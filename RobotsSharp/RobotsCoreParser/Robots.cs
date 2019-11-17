@@ -7,11 +7,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace RobotsSharpParser
+namespace RobotsCoreParser
 {
     public interface IRobots
     {
@@ -27,13 +26,11 @@ namespace RobotsSharpParser
         bool IsPathAllowed(string path, string userAgent = "*");
         bool IsPathDisallowed(string path, string userAgent = "*");
         int GetCrawlDelay(string userAgent = "*");
-        IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "");
-        Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "");
         IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "");
         Task<IReadOnlyList<tSitemap>> GetSitemapIndexesAsync(string sitemapUrl = "");
         IReadOnlyList<tUrl> GetUrls(tSitemap tSitemap);
         Task<IReadOnlyList<tUrl>> GetUrlsAsync(tSitemap tSitemap);
-        bool IgnoreErrors { get; set; }
+
     }
 
     public class ProgressEventArgs : EventArgs
@@ -54,10 +51,6 @@ namespace RobotsSharpParser
         public event ProgressEventHandler OnProgress;
         public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
-        /// <summary>
-        /// Will ignore errors when attempting to parse sitemap
-        /// </summary>
-        public bool IgnoreErrors { get; set; } = false;
         public Robots(Uri websiteUri, string userAgent)
         {
             if (Uri.TryCreate(websiteUri, "/robots.txt", out Uri robots))
@@ -186,29 +179,6 @@ namespace RobotsSharpParser
         public bool IsPathDisallowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
         public int GetCrawlDelay(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Crawldelay;
 
-        [Obsolete("Please make use of GetSitemapsFromSitemapIndex and GetUrlFromSitemap to load urls from the sitemap.")]
-        public IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "")
-        {
-            var task = GetSitemapLinksAsync(sitemapUrl);
-            task.Wait();
-            if (task.IsFaulted)
-                throw task.Exception;
-            else
-                return task.Result;
-        }
-
-        private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
-        [Obsolete("Please make use of GetSitemapsFromSitemapIndexAsync and GetUrlFromSitemapAsync to load urls from the sitemap.")]
-        public async Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
-        {
-            if (sitemapUrl == string.Empty)
-                foreach (var siteIndex in _sitemaps)
-                    await GetSitemapLinksInternal(siteIndex);
-            else
-                await GetSitemapLinksInternal(sitemapUrl);
-
-            return _sitemapLinks;
-        }
 
         public IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "")
         {
@@ -249,29 +219,17 @@ namespace RobotsSharpParser
             if (tSitemap == null)
                 throw new ArgumentNullException(nameof(tSitemap), "sitemap requires a value");
 
-            var response = await _client.GetAsync(tSitemap.loc);
-            if (response.IsSuccessStatusCode)
-            {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    await response.Content.CopyToAsync(stream);
+            MemoryStream stream = new MemoryStream();
+            Stream rawstream = await _client.GetStreamAsync(tSitemap.loc);
+            rawstream.CopyTo(stream);
 
-                    if (!TryDecompress(stream, out byte[] bytes))
-                        bytes = stream.ToArray();
+            if (!TryDecompress(stream, out byte[] bytes))
+                bytes = stream.ToArray();
 
-                    if (TryDeserializeXMLStream(bytes, out urlset urlSet) && urlSet.url != null)
-                        return urlSet.url;
-                    else if (!IgnoreErrors)
-                        throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
-                    else
-                        return new List<tUrl>();
-                }
-            }
+            if (TryDeserializeXMLStream(bytes, out urlset urlSet) && urlSet.url != null)
+                return urlSet.url;
             else
-            {
-                //add logging for non successful error codes
-                return new List<tUrl>();
-            }
+                throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
         }
 
         #endregion
@@ -287,12 +245,11 @@ namespace RobotsSharpParser
 
             if (TryDeserializeXMLStream(bytes, out sitemapindex sitemapIndex))
                 return sitemapIndex.sitemap;
-            else if (!IgnoreErrors)
-                throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
             else
-                return new List<tSitemap>();
+                throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
         }
 
+        private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
         private async Task GetSitemapLinksInternal(string siteIndex)
         {
             MemoryStream stream = new MemoryStream();

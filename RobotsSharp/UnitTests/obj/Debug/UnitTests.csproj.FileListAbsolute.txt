@@ -49,7 +49,6 @@ D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.dll
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.pdb
 D:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csprojAssemblyReference.cache
 C:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csprojAssemblyReference.cache
-C:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.csproj.CoreCompileInputs.cache
 C:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.dll
 C:\working\RobotsSharpParser\RobotsSharp\UnitTests\obj\Debug\UnitTests.pdb
 C:\working\RobotsSharpParser\RobotsSharp\UnitTests\bin\Debug\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll

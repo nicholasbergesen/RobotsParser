@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotsSharpParser", "RobotsSharpParser\RobotsSharpParser.csproj", "{D18B4FBC-32CE-4B57-BFB4-054AA70EB476}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{C494AFF3-0840-43BF-AE2B-7E9421FAA2E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotsCoreParser", "RobotsCoreParser\RobotsCoreParser.csproj", "{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C494AFF3-0840-43BF-AE2B-7E9421FAA2E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C494AFF3-0840-43BF-AE2B-7E9421FAA2E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C494AFF3-0840-43BF-AE2B-7E9421FAA2E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
