@@ -56,7 +56,7 @@ public partial class urlset {
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.sitemaps.org/schemas/sitemap/0.9")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://www.sitemaps.org/schemas/sitemap/0.9")]
 public partial class tUrl {
     
     private string locField;
@@ -70,7 +70,9 @@ public partial class tUrl {
     private decimal priorityField;
     
     private bool priorityFieldSpecified;
-    
+
+    private link linkField;
+
     private System.Xml.XmlElement[] anyField;
     
     /// <remarks/>
@@ -135,7 +137,20 @@ public partial class tUrl {
             this.priorityFieldSpecified = value;
         }
     }
-    
+
+    [System.Xml.Serialization.XmlElementAttribute(Namespace = "http://www.w3.org/1999/xhtml")]
+    public link link
+    {
+        get
+        {
+            return this.linkField;
+        }
+        set
+        {
+            this.linkField = value;
+        }
+    }
+
     /// <remarks/>
     [System.Xml.Serialization.XmlAnyElementAttribute()]
     public System.Xml.XmlElement[] Any {
@@ -151,7 +166,7 @@ public partial class tUrl {
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
 [System.SerializableAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.sitemaps.org/schemas/sitemap/0.9")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace="https://www.sitemaps.org/schemas/sitemap/0.9")]
 public enum tChangeFreq {
     
     /// <remarks/>
@@ -174,4 +189,47 @@ public enum tChangeFreq {
     
     /// <remarks/>
     never,
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true, Namespace = "http://www.w3.org/1999/xhtml")]
+[System.Xml.Serialization.XmlRootAttribute(Namespace = "http://www.w3.org/1999/xhtml", IsNullable = false)]
+public partial class link
+{
+
+    private string hrefField;
+
+    private string relField;
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string href
+    {
+        get
+        {
+            return this.hrefField;
+        }
+        set
+        {
+            this.hrefField = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string rel
+    {
+        get
+        {
+            return this.relField;
+        }
+        set
+        {
+            this.relField = value;
+        }
+    }
 }
