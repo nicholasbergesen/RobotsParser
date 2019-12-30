@@ -20,8 +20,8 @@ using System.Xml.Serialization;
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://www.sitemaps.org/schemas/sitemap/0.9")]
-[System.Xml.Serialization.XmlRootAttribute(Namespace="http://www.sitemaps.org/schemas/sitemap/0.9", IsNullable=false)]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="https://www.sitemaps.org/schemas/sitemap/0.9")]
+[System.Xml.Serialization.XmlRootAttribute(Namespace="https://www.sitemaps.org/schemas/sitemap/0.9", IsNullable=false)]
 public partial class urlset {
     
     private System.Xml.XmlElement[] anyField;
