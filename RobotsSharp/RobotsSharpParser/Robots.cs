@@ -27,8 +27,6 @@ namespace RobotsSharpParser
         bool IsPathAllowed(string path, string userAgent = "*");
         bool IsPathDisallowed(string path, string userAgent = "*");
         int GetCrawlDelay(string userAgent = "*");
-        IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "");
-        Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "");
         IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "");
         Task<IReadOnlyList<tSitemap>> GetSitemapIndexesAsync(string sitemapUrl = "");
         IReadOnlyList<tUrl> GetUrls(tSitemap tSitemap);
@@ -50,9 +48,6 @@ namespace RobotsSharpParser
         private readonly Uri _robotsUri;
         private string _robots;
         private HttpClient _client;
-
-        public event ProgressEventHandler OnProgress;
-        public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
         /// <summary>
         /// Will ignore errors when attempting to parse sitemap
@@ -90,13 +85,6 @@ namespace RobotsSharpParser
 
         public Robots(string websiteUri, string userAgent)
             : this(new Uri(websiteUri), userAgent) { }
-
-        private void RaiseOnProgress(string progressMessage)
-        {
-            if (OnProgress == null)
-                return;
-            OnProgress(this, new ProgressEventArgs(progressMessage));
-        }
 
         private async Task ParseRobotsAsync()
         {
@@ -186,30 +174,7 @@ namespace RobotsSharpParser
         public bool IsPathDisallowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
         public int GetCrawlDelay(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Crawldelay;
 
-        [Obsolete("Please make use of GetSitemapsFromSitemapIndex and GetUrlFromSitemap to load urls from the sitemap.")]
-        public IReadOnlyList<tUrl> GetSitemapLinks(string sitemapUrl = "")
-        {
-            var task = GetSitemapLinksAsync(sitemapUrl);
-            task.Wait();
-            if (task.IsFaulted)
-                throw task.Exception;
-            else
-                return task.Result;
-        }
-
         private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
-        [Obsolete("Please make use of GetSitemapsFromSitemapIndexAsync and GetUrlFromSitemapAsync to load urls from the sitemap.")]
-        public async Task<IReadOnlyList<tUrl>> GetSitemapLinksAsync(string sitemapUrl = "")
-        {
-            if (sitemapUrl == string.Empty)
-                foreach (var siteIndex in _sitemaps)
-                    await GetSitemapLinksInternal(siteIndex);
-            else
-                await GetSitemapLinksInternal(sitemapUrl);
-
-            return _sitemapLinks;
-        }
-
         public IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "")
         {
             var task = GetSitemapIndexesAsync(sitemapUrl);
@@ -291,32 +256,6 @@ namespace RobotsSharpParser
                 throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
             else
                 return new List<tSitemap>();
-        }
-
-        private async Task GetSitemapLinksInternal(string siteIndex)
-        {
-            MemoryStream stream = new MemoryStream();
-            Stream rawstream = await _client.GetStreamAsync(siteIndex);
-            rawstream.CopyTo(stream);
-
-            if (!TryDecompress(stream, out byte[] bytes))
-                bytes = stream.ToArray();
-
-            if (TryDeserializeXMLStream(bytes, out sitemapindex sitemapIndex))
-            {
-                foreach (tSitemap sitemap in sitemapIndex.sitemap)
-                {
-                    await GetSitemapLinksInternal(sitemap.loc);
-                }
-            }
-            else
-            {
-                if (TryDeserializeXMLStream(bytes, out urlset urlSet) && urlSet.url != null)
-                {
-                    _sitemapLinks.AddRange(urlSet.url.ToList());
-                    RaiseOnProgress($"{_sitemapLinks.Count}");
-                }
-            }
         }
 
         private bool TryDeserializeXMLStream<T>(byte[] bytes, out T xmlValue)
