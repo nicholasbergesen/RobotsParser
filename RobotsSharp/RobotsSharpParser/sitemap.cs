@@ -56,7 +56,7 @@ public partial class urlset {
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.sitemaps.org/schemas/sitemap/0.9")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "http://www.sitemaps.org/schemas/sitemap/0.9")]
 public partial class tUrl {
     
     private string locField;
@@ -166,7 +166,7 @@ public partial class tUrl {
 /// <remarks/>
 [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
 [System.SerializableAttribute()]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.sitemaps.org/schemas/sitemap/0.9")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "http://www.sitemaps.org/schemas/sitemap/0.9")]
 public enum tChangeFreq {
     
     /// <remarks/>

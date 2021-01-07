@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotsSharpParser", "Robots
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{C494AFF3-0840-43BF-AE2B-7E9421FAA2E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobotsCoreParser", "RobotsCoreParser\RobotsCoreParser.csproj", "{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RobotsCoreParser", "RobotsCoreParser\RobotsCoreParser.csproj", "{6BD1BECD-CF34-49AE-81A1-3DEF03F8A56A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

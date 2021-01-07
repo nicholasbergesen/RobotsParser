@@ -174,7 +174,6 @@ namespace RobotsSharpParser
         public bool IsPathDisallowed(string path, string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).IsDisallowed(path);
         public int GetCrawlDelay(string userAgent = "*") => UserAgents.First(x => x.Name == userAgent).Crawldelay;
 
-        private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
         public IReadOnlyList<tSitemap> GetSitemapIndexes(string sitemapUrl = "")
         {
             var task = GetSitemapIndexesAsync(sitemapUrl);
@@ -224,7 +223,7 @@ namespace RobotsSharpParser
                     if (!TryDecompress(stream, out byte[] bytes))
                         bytes = stream.ToArray();
 
-                    if (TryDeserializeXMLStream(bytes, out urlset urlSet) && urlSet.url != null)
+                    if (TryDeserializeXMLStream("urlset", bytes, out urlset urlSet) && urlSet.url != null)
                         return urlSet.url;
                     else if (!IgnoreErrors)
                         throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
@@ -250,7 +249,7 @@ namespace RobotsSharpParser
             if (!TryDecompress(stream, out byte[] bytes))
                 bytes = stream.ToArray();
 
-            if (TryDeserializeXMLStream(bytes, out sitemapindex sitemapIndex))
+            if (TryDeserializeXMLStream("sitemapindex", bytes, out sitemapindex sitemapIndex))
                 return sitemapIndex.sitemap;
             else if (!IgnoreErrors)
                 throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
@@ -258,22 +257,23 @@ namespace RobotsSharpParser
                 return new List<tSitemap>();
         }
 
-        private bool TryDeserializeXMLStream<T>(byte[] bytes, out T xmlValue)
+        private bool TryDeserializeXMLStream<T>(string root, byte[] bytes, out T xmlValue)
         {
             using (StringReader sr = new StringReader(Encoding.UTF8.GetString(bytes)))
             {
-                return TryDeserializeXMLStream(sr, out xmlValue);
+                return TryDeserializeXMLStream(sr, root, out xmlValue);
             }
         }
 
-        private bool TryDeserializeXMLStream<T>(TextReader reader, out T xmlValue)
+        private bool TryDeserializeXMLStream<T>(TextReader reader, string root, out T xmlValue)
         {
             try
             {
-                using (XmlReader xmlReader = XmlReader.Create(reader))
+                using (NamespaceIgnorantXmlTextReader xmlReader = new NamespaceIgnorantXmlTextReader(reader))
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(T));
                     xmlValue = (T)serializer.Deserialize(xmlReader);
+
                     return xmlValue != null;
                 }
             }

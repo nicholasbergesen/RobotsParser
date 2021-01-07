@@ -56,7 +56,7 @@ public partial class sitemapindex {
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(Namespace="http://www.sitemaps.org/schemas/sitemap/0.9")]
+[System.Xml.Serialization.XmlTypeAttribute(Namespace= "http://www.sitemaps.org/schemas/sitemap/0.9")]
 public partial class tSitemap {
     
     private string locField;
