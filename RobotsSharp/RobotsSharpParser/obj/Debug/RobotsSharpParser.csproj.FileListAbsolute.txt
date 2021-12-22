@@ -1,5 +1,0 @@
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharpParser.dll
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Debug\RobotsSharpParser.pdb
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.csproj.CoreCompileInputs.cache
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.dll
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Debug\RobotsSharpParser.pdb

@@ -1,0 +1,22 @@
+name: Publish Nuget Package
+on: [push]
+jobs:
+  Publish-Nuget:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet pack -c Release
+      run: dotnet nuget push "bin/Release/RobotsSharpParser.2.0.0.nupkg" --api-key ${{ secrets.NUGETAPIKEY }}
+    - name: Clean
+      run: dotnet clean

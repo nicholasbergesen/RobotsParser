@@ -1,6 +1,0 @@
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Release\RobotsSharpParser.dll
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\bin\Release\RobotsSharpParser.pdb
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.csprojAssemblyReference.cache
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.csproj.CoreCompileInputs.cache
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.dll
-C:\working\robotsSharp\RobotsSharp\RobotsSharpParser\obj\Release\RobotsSharpParser.pdb

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>RobotsSharpParser</PackageId>
+    <Version>2.0.0</Version>
+    <Authors>Nicholas Bergesen</Authors>
+    <Company>Nicholas Bergesen</Company>
+    <PackageReleaseNotes>Update to net6 and minor bug fixes.</PackageReleaseNotes>
+    <PackageTags>robots,parse robots,web crawling,robots.txt,web scraping,spider,sitemap,sitemap parse</PackageTags>
+    <Description>
+      This client library enables working with Robots.txt.
+      Key Features:
+        - Parse robots.txt into Typed object.
+        - Lookup Allowed/Disallowed/Crawldelay based on User-Agent.
+        - Traverse sitemap in robots.txt for urls.
+
+      For More info see: https://github.com/nicholasbergesen/robotsSharp/master/README.md
+    </Description>
+  </PropertyGroup>
+  
+</Project>
