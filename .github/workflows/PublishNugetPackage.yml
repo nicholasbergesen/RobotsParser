@@ -17,6 +17,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal
     - name: Publish
       run: dotnet pack -c Release
+    - name: Push to Nuget
       run: dotnet nuget push "bin/Release/RobotsSharpParser.2.0.0.nupkg" --api-key ${{ secrets.NUGETAPIKEY }}
     - name: Clean
       run: dotnet clean
