@@ -1,6 +1,6 @@
 Based off the original robotsSharp build in the .Net
 Framework. Robots is an updated version built on the new net6.0.
 
-The library has been refined to make loading sitemaps easier. Parse robots.txt and sitemaps from the worlds largest websites with ease.
+The library has been refined to make loading sitemaps easier. Parse robots.txt and traverse large sitemaps with ease.
 
-Removed all synchronous IO operations.
+Removed synchronous IO operations.
