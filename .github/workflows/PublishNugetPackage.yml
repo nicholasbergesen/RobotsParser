@@ -18,6 +18,6 @@ jobs:
     - name: Publish
       run: dotnet pack -c Release
     - name: Push to Nuget
-      run: dotnet nuget push "bin/Release/RobotsSharpParser.2.0.0.nupkg" --api-key ${{ secrets.NUGETAPIKEY }}
+      run: dotnet nuget push "bin/Release/RobotsSharpParser.2.0.0.nupkg" --api-key ${{ secrets.NUGETAPIKEY }} -s https://github.com/nicholasbergesen/robotsSharp
     - name: Clean
       run: dotnet clean
