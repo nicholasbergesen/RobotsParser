@@ -1,5 +1,11 @@
 name: Publish Nuget Package
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'Robots/**'
 jobs:
   Publish-Nuget:
     runs-on: ubuntu-latest
