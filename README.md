@@ -1,4 +1,4 @@
-# Welcome to the robotsSharpParser wiki!
+robotsSharpParser
 
 **Nuget Page**: https://www.nuget.org/packages/RobotsSharpParser/
 
