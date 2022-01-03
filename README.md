@@ -5,7 +5,6 @@
 ## Install options
 - Install-Package Nick.RobotsParser -Version 2.0.1
 - dotnet add package Nick.RobotsParser --version 2.0.1
-- <PackageReference Include="Nick.RobotsParser" Version="2.0.1" />
 
 ## Example Snippets
 ### Load robots.txt
