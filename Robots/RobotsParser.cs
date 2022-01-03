@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace RobotsSharpParser
@@ -50,7 +51,9 @@ namespace RobotsSharpParser
             _robotsUri = robots;
             HttpClientHandler handler = new HttpClientHandler
             {
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+                AutomaticDecompression = System.Net.DecompressionMethods.All,
+                AllowAutoRedirect = true,
+                MaxAutomaticRedirections = 5
             };
             _client = new HttpClient(handler, true);
             _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
@@ -205,13 +208,7 @@ namespace RobotsSharpParser
             if (tSitemap is null)
                 throw new ArgumentNullException(nameof(tSitemap), "sitemap requires a value");
 
-            MemoryStream stream = new MemoryStream();
-            Stream rawstream = await _client.GetStreamAsync(tSitemap.loc);
-            rawstream.CopyTo(stream);
-
-            if (!TryDecompress(stream, out byte[] bytes))
-                bytes = stream.ToArray();
-
+            var bytes = await _client.GetByteArrayAsync(tSitemap.loc);
             if (TryDeserializeXMLStream(bytes, out urlset? urlSet) && urlSet?.url is not null)
                 return urlSet.url;
             else
@@ -222,13 +219,7 @@ namespace RobotsSharpParser
 
         private async Task<IReadOnlyList<tSitemap>> GetSitemapsInternal(string sitemapUrl)
         {
-            MemoryStream stream = new MemoryStream();
-            Stream rawstream = await _client.GetStreamAsync(sitemapUrl);
-            rawstream.CopyTo(stream);
-
-            if (!TryDecompress(stream, out byte[] bytes))
-                bytes = stream.ToArray();
-
+            var bytes = await _client.GetByteArrayAsync(sitemapUrl);
             if (TryDeserializeXMLStream(bytes, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
                 return sitemapIndex.sitemap;
             else
@@ -238,13 +229,7 @@ namespace RobotsSharpParser
         private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
         private async Task GetSitemapLinksInternal(string siteIndex)
         {
-            MemoryStream stream = new MemoryStream();
-            Stream rawstream = await _client.GetStreamAsync(siteIndex);
-            rawstream.CopyTo(stream);
-
-            if (!TryDecompress(stream, out byte[] bytes))
-                bytes = stream.ToArray();
-
+            var bytes = await _client.GetByteArrayAsync(siteIndex);
             if (TryDeserializeXMLStream(bytes, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
             {
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
@@ -264,22 +249,24 @@ namespace RobotsSharpParser
 
         private bool TryDeserializeXMLStream<T>(byte[] bytes, out T? xmlValue)
         {
-            using (StringReader sr = new StringReader(Encoding.UTF8.GetString(bytes)))
-            {
-                return TryDeserializeXMLStream(sr, out xmlValue);
-            }
+            var stringVal = Encoding.UTF8.GetString(bytes);
+            stringVal = StripVersionFromString(stringVal);
+
+            using StringReader sr = new StringReader(stringVal);
+            return TryDeserializeXMLStream(sr, out xmlValue);
         }
 
         private bool TryDeserializeXMLStream<T>(TextReader reader, out T? xmlValue)
         {
             try
             {
-                using (XmlReader xmlReader = XmlReader.Create(reader))
+                using XmlReader xmlReader = XmlReader.Create(reader, new XmlReaderSettings()
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(T));
-                    xmlValue = (T?)serializer.Deserialize(xmlReader);
-                    return xmlValue is not null;
-                }
+                    ValidationType = ValidationType.None
+                });
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                xmlValue = (T?)serializer.Deserialize(xmlReader);
+                return xmlValue is not null;
             }
             catch
             {
@@ -288,26 +275,12 @@ namespace RobotsSharpParser
             }
         }
 
-        private bool TryDecompress(Stream stream, out byte[] bytes)
+        private string StripVersionFromString(string val)
         {
-            try
-            {
-                using (MemoryStream decompressedStream = new MemoryStream())
-                {
-                    stream.Position = 0;
-                    using (GZipStream decompressionStream = new GZipStream(stream, CompressionMode.Decompress))
-                    {
-                        decompressionStream.CopyTo(decompressedStream);
-                        bytes = decompressedStream.ToArray();
-                    }
-                }
-                return true;
-            }
-            catch
-            {
-                bytes = new byte[0];
-                return false;
-            }
+            var endChar = val.IndexOf("?>");
+            if(endChar != -1)
+                return val.Remove(0, endChar + 2);
+            return val;
         }
 
         public void Dispose()
