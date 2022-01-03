@@ -1,15 +1,16 @@
-# RobotsSharpParser
+# RobotsParser
 
-**Nuget Page**: https://www.nuget.org/packages/RobotsSharpParser/
+**Nuget Page**: https://www.nuget.org/packages/Nick.RobotsParser/
 
 ## Install options
-- Install-Package RobotsSharpParser -Version 2.0.0
-- dotnet add package RobotsSharpParser --version 2.0.0
+- Install-Package Nick.RobotsParser -Version 2.0.1
+- dotnet add package Nick.RobotsParser --version 2.0.1
+- <PackageReference Include="Nick.RobotsParser" Version="2.0.1" />
 
 ## Example Snippets
 ### Load robots.txt
 ```
-IRobots robots = new Robots(websiteUri: "https://websiteurl.com", userAgent: "my custom user agent");
+var robots = new Robots(websiteUri: "https://websiteurl.com", userAgent: "my custom user agent");
 await robots.Load();
 ```
 
