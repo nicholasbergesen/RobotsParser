@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RobotsSharpParser
+namespace RobotsParser
 {
     public class Const
     {

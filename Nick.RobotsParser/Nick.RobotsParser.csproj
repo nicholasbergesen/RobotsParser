@@ -1,14 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageId>RobotsSharpParser</PackageId>
+    <PackageId>RobotsParser</PackageId>
     <Version>2.0.0</Version>
     <Authors>Nicholas Bergesen</Authors>
     <Company>Nicholas Bergesen</Company>
-    <PackageReleaseNotes>Update to net6 and minor bug fixes.</PackageReleaseNotes>
+    <PackageReleaseNotes>
+	    - Handle all types of compression not just GZip	
+		- Improve sitemap parsing robustness.
+	</PackageReleaseNotes>
     <PackageTags>robots,parse robots,web crawling,robots.txt,web scraping,spider,sitemap,sitemap parse</PackageTags>
     <Description>
       This client library enables working with Robots.txt.

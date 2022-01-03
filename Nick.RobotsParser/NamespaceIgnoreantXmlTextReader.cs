@@ -2,7 +2,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace RobotsSharpParser
+namespace RobotsParser
 {
     //This class is used to solve the issue of some sites using http and others using https
     //in their sitemap files.

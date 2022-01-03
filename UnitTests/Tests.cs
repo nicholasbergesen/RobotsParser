@@ -1,7 +1,7 @@
 using NUnit.Framework;
+using RobotsParser;
 using System.IO;
 using System.Linq;
-using RobotsSharpParser;
 
 namespace UnitTests;
 

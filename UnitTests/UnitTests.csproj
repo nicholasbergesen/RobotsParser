@@ -15,15 +15,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Robots\Robots.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="lootRobots.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="takealotRobots.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nick.RobotsParser\Nick.RobotsParser.csproj" />
   </ItemGroup>
 </Project>
