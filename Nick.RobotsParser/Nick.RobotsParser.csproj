@@ -9,9 +9,9 @@
     <Authors>Nicholas Bergesen</Authors>
     <Company>Nicholas Bergesen</Company>
     <PackageReleaseNotes>
-	    - Handle all types of compression not just GZip	
-		- Improve sitemap parsing robustness.
-	</PackageReleaseNotes>
+	- Improve sitemap parsing robustness.
+	- Ignore sitemap parsing errors.
+    </PackageReleaseNotes>
     <PackageTags>robots,parse robots,web crawling,robots.txt,web scraping,spider,sitemap,sitemap parse</PackageTags>
     <Description>
       This client library enables working with Robots.txt.
