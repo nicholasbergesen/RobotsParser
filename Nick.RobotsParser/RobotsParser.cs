@@ -215,6 +215,8 @@ namespace RobotsParser
                 return urlSet.url;
             else if (!_supressSitemapErrors)
                 throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
+            else
+                return new List<tUrl>();
         }
 
         #endregion
@@ -226,6 +228,8 @@ namespace RobotsParser
                 return sitemapIndex.sitemap;
             else if (!_supressSitemapErrors)
                 throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
+            else
+                return new List<tSitemap>();
         }
 
         private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
