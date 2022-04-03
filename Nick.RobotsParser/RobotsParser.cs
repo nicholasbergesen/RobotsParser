@@ -36,11 +36,12 @@ namespace RobotsParser
         private readonly Uri _robotsUri;
         private string? _robots;
         private readonly HttpClient _client;
+        private readonly bool _supressSitemapErrors;
 
         public event ProgressEventHandler? OnProgress;
         public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
-        public Robots(Uri websiteUri, string userAgent)
+        public Robots(Uri websiteUri, string userAgent, bool supressSitemapErrors = false)
         {
             if(websiteUri is null)
                 throw new ArgumentNullException(nameof(websiteUri));
@@ -48,6 +49,7 @@ namespace RobotsParser
             if (!Uri.TryCreate(websiteUri, "/robots.txt", out Uri? robots))
                 throw new ArgumentException($"Unable to append robots.txt to {websiteUri}");
 
+            _supressSitemapErrors = supressSitemapErrors;
             _robotsUri = robots;
             HttpClientHandler handler = new HttpClientHandler
             {
@@ -74,8 +76,8 @@ namespace RobotsParser
             _client.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache"));
         }
 
-        public Robots(string websiteUri, string userAgent)
-            : this(new Uri(websiteUri), userAgent) { }
+        public Robots(string websiteUri, string userAgent, bool supressSitemapErrors = false)
+            : this(new Uri(websiteUri), userAgent, supressSitemapErrors) { }
 
         private void RaiseOnProgress(string progressMessage)
         {
@@ -211,7 +213,7 @@ namespace RobotsParser
             var bytes = await _client.GetByteArrayAsync(tSitemap.loc);
             if (TryDeserializeXMLStream(bytes, out urlset? urlSet) && urlSet?.url is not null)
                 return urlSet.url;
-            else
+            else if (!_supressSitemapErrors)
                 throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
         }
 
@@ -222,7 +224,7 @@ namespace RobotsParser
             var bytes = await _client.GetByteArrayAsync(sitemapUrl);
             if (TryDeserializeXMLStream(bytes, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
                 return sitemapIndex.sitemap;
-            else
+            else if (!_supressSitemapErrors)
                 throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
         }
 
