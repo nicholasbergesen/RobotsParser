@@ -30,7 +30,8 @@ jobs:
       run: dotnet build --configuration Release
     - name: Publish
       run: dotnet pack -c Release
-    - name: Push to Nuget
-      run: dotnet nuget push ./Nick.RobotsParser/bin/Release/NickRobotsParser.2.0.3.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
+    - run: ls
+    - name: Push to Nuget |
+      run: dotnet nuget push ./RobotsParser/Nick.RobotsParser/bin/Release/Nick.RobotsParser.2.0.2.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
     - name: Clean
       run: dotnet clean
