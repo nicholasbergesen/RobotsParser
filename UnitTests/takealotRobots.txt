@@ -1,7 +1,11 @@
+
+Sitemap:https://www.takealot.com/sitemap.xml
+
 User-agent: *
 disallow: /*gclid=
 disallow: /ajax/*.php
 disallow: /ajax/*.php*
+disallow: /help/page/
 disallow: /help/faq/*
 disallow: /*sort=Price
 disallow: /*sort=Rating
@@ -45,6 +49,13 @@ disallow: /*filter=BasicColours
 disallow: /*filter=BooksFormat
 disallow: /*filter=ASCondition
 disallow: /*filter=ASDigitalAppliance
+
 Allow: /
 
-Sitemap:https://www.takealot.com/sitemap.xml
+User-agent: AdsBot-Google
+
+User-agent: Googlebot-Image
+
+User-agent: Mediapartners-Google
+
+Allow: /
