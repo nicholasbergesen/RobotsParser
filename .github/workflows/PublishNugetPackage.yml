@@ -49,5 +49,9 @@ jobs:
         release_name: v2.0.5
         draft: false
         prerelease: false
-    - name: Clean
-      run: dotnet clean
+        
+  Clean:
+    needs: [ Create_Release, Publish ]
+    runs-on: windows-latest
+    steps:
+    - run: dotnet clean
