@@ -18,7 +18,8 @@ jobs:
         dotnet-version: 6.0.x
     - run: dotnet restore
     - run: dotnet test UnitTests/UnitTests.csproj
-  Publish-Nuget:
+
+  Publish:
     needs: Test
     runs-on: windows-latest
     steps:
@@ -33,6 +34,11 @@ jobs:
       run: dotnet pack -c Release
     - name: Push to Nuget
       run: dotnet nuget push ./Nick.RobotsParser/bin/Release/Nick.RobotsParser.2.0.4.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
+
+  Create_Release:
+    needs: Test
+    runs-on: windows-latest
+      steps:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
