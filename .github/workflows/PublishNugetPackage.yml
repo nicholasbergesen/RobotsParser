@@ -33,7 +33,7 @@ jobs:
     - name: Publish
       run: dotnet pack -c Release
     - name: Push to Nuget
-      run: dotnet nuget push ./Nick.RobotsParser/bin/Release/Nick.RobotsParser.2.0.4.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ./Nick.RobotsParser/bin/Release/Nick.RobotsParser.2.0.5.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
 
   Create_Release:
     needs: Test
@@ -45,8 +45,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: v2.0.5
+        release_name: v2.0.5
         draft: false
         prerelease: false
     - name: Clean
