@@ -10,12 +10,11 @@ public class LootTest
     private const string TakealotRobotsTxt = @"takealotRobots.txt";
     private const string UserAgent = "FakeAgent";
 
-    private IRobots _robots;
+    private IRobots _robots = new Robots(websiteUri: "https://loot.co.za", userAgent: UserAgent);
 
     [SetUp]
     public void Setup()
     {
-        _robots = new Robots(websiteUri: "https://loot.co.za", userAgent: UserAgent);
         using (var sr = new StreamReader("lootRobots.txt"))
         {
             _robots.Load(sr.ReadToEnd()).Wait();
