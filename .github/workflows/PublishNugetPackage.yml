@@ -38,7 +38,7 @@ jobs:
   Create_Release:
     needs: Test
     runs-on: windows-latest
-      steps:
+    steps:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
