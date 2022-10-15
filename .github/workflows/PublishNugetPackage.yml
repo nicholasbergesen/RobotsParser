@@ -6,7 +6,7 @@ on:
       - main
       - master
     paths:
-      - 'Robots/**'
+      - 'Nick.RobotsParser/**'
 jobs:
   Publish-Nuget:
     runs-on: ubuntu-latest
