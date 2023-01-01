@@ -1,10 +1,6 @@
-﻿using System.IO.Compression;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
+﻿using System.Net.Http.Headers;
 using System.Text;
-using System.Transactions;
 using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace RobotsParser
@@ -14,15 +10,14 @@ namespace RobotsParser
         Task<bool> LoadRobotsFromUrl(string robotsUrl);
         Task<bool> LoadRobotsContent(string robotsContent);
         IReadOnlyList<Useragent> UserAgents { get; }
-        IEnumerable<string> Sitemaps { get; }
+        HashSet<string> Sitemaps { get; }
         IEnumerable<string> GetAllowedPaths(string userAgent = "*");
         IEnumerable<string> GetDisallowedPaths(string userAgent = "*");
         bool IsPathAllowed(string path, string userAgent = "*");
         bool IsPathDisallowed(string path, string userAgent = "*");
         int GetCrawlDelay(string userAgent = "*");
-        Task<IReadOnlyList<tSitemap>> GetSitemapIndexes(string sitemapUrl = null);
+        Task<IReadOnlyList<tSitemap>> GetSitemapIndexes(string? sitemapUrl = null);
         Task<IReadOnlyList<tUrl>> GetUrls(tSitemap tSitemap);
-        string? SitemapUrl { get; set; }
     }
 
     public class ProgressEventArgs : EventArgs
@@ -36,15 +31,12 @@ namespace RobotsParser
 
     public class Robots : IRobots, IDisposable
     {
-        private readonly Uri _robotsUri;
-        private string? _robots;
+        private string? _robotsContent;
         private readonly HttpClient _client;
         private readonly bool _supressSitemapErrors;
 
         public event ProgressEventHandler? OnProgress;
         public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
-
-        public string? SitemapUrl { get; set; }
 
         public Robots(string userAgent, bool supressSitemapErrors = false)
         {
@@ -82,14 +74,14 @@ namespace RobotsParser
 
         private async Task ParseRobots()
         {
-            if(_robots is null)
+            if(_robotsContent is null)
                 throw new RobotsNotloadedException();
 
             _userAgents = new List<Useragent>();
-            _sitemaps = new HashSet<string>();
+            _sitemaps ??= new HashSet<string>();
 
             string? line;
-            using (StringReader sr = new StringReader(_robots))
+            using (StringReader sr = new StringReader(_robotsContent))
             {
                 Useragent currentAgent = new Useragent("*");
                 while ((line = await sr.ReadLineAsync()) != null)
@@ -114,8 +106,6 @@ namespace RobotsParser
                         throw new Exception($"Unable to parse {line} in robots.txt");
                 }
             }
-
-            SitemapUrl = _sitemaps.FirstOrDefault();
         }
 
         #region Interface Methods
@@ -130,7 +120,7 @@ namespace RobotsParser
                 var response = await _client.GetAsync(robots);
                 response.EnsureSuccessStatusCode();
 
-                _robots = await response.Content.ReadAsStringAsync();
+                _robotsContent = await response.Content.ReadAsStringAsync();
             }
             catch (HttpRequestException e)
             {
@@ -144,7 +134,7 @@ namespace RobotsParser
 
         public async Task<bool> LoadRobotsContent(string robotsContent)
         {
-            _robots = robotsContent;
+            _robotsContent = robotsContent;
             await ParseRobots();
             return true;
         }
@@ -161,7 +151,7 @@ namespace RobotsParser
         }
 
         private HashSet<string>? _sitemaps;
-        public IEnumerable<string> Sitemaps
+        public HashSet<string> Sitemaps
         {
             get
             {
@@ -199,37 +189,28 @@ namespace RobotsParser
 
         public async Task<IReadOnlyList<tSitemap>> GetSitemapIndexes(string? sitemapUrl = null)
         {
-            SitemapUrl ??= sitemapUrl;
-
-            if (!string.IsNullOrEmpty(SitemapUrl))
+            if (!string.IsNullOrEmpty(sitemapUrl))
             {
                 _sitemaps ??= new HashSet<string>();
-                _sitemaps.Add(SitemapUrl);
+                _sitemaps.Add(sitemapUrl);
             }
 
             if (_sitemaps is null)
             {
-                if (_robots is null)
+                if (_robotsContent is null)
                     throw new RobotsNotloadedException("Please call LoadRobotsFromUrl, LoadRobotsContent or pass a sitemap url to GetSitemapIndexes.");
 
                 return new List<tSitemap>();
             }
 
-            //If not value given from user then go through _sitemaps.
-            if (string.IsNullOrEmpty(SitemapUrl))
+            List<tSitemap> sitemaps = new List<tSitemap>(100000);
+            if(_sitemaps.Any())
             {
-                List<tSitemap> sitemaps = new List<tSitemap>(100000);
-                if(_sitemaps.Count > 0)
-                {
-                    foreach (var sitemap in _sitemaps)
-                        sitemaps.AddRange(await GetSitemapsInternal(sitemap));
-                }
-                return sitemaps;
+                foreach (var sitemap in _sitemaps)
+                    sitemaps.AddRange(await GetSitemapsInternal(sitemap));
             }
-            else 
-            {
-                return await GetSitemapsInternal(SitemapUrl);
-            }
+
+            return sitemaps;
         }
 
         public async Task<IReadOnlyList<tUrl>> GetUrls(tSitemap tSitemap)

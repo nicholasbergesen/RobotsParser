@@ -5,21 +5,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>Nick.RobotsParser</PackageId>
-    <Version>2.0.5</Version>
+    <Version>2.0.6</Version>
     <Authors>Nicholas Bergesen</Authors>
     <Company>Nicholas Bergesen</Company>
     <PackageReleaseNotes>
-	- Improve sitemap parsing robustness.
-	- Ignore sitemap parsing errors.
     </PackageReleaseNotes>
     <PackageTags>robots,parse robots,web crawling,robots.txt,web scraping,spider,sitemap,sitemap parse</PackageTags>
     <Description>
-      Library for working with robots.txt
-        - Parse robots.txt into Typed object.
-        - Lookup Allowed/Disallowed/Crawldelay based on User-Agent.
-        - Traverse sitemap in robots.txt for urls.
-
-      For More info see: https://github.com/nicholasbergesen/RobotsParser/blob/master/README.md
+		https://github.com/nicholasbergesen/RobotsParser/blob/master/README.md
     </Description>
   </PropertyGroup>
   
