@@ -9,14 +9,14 @@ public class LootTest
 {
     private const string UserAgent = "FakeAgent";
 
-    private IRobots _robots = new Robots(websiteUri: "https://loot.co.za", userAgent: UserAgent);
+    private IRobots _robots = new Robots(userAgent: UserAgent);
 
     [SetUp]
     public void Setup()
     {
         using (var sr = new StreamReader("lootRobots.txt"))
         {
-            _robots.Load(sr.ReadToEnd()).Wait();
+            _robots.LoadRobotsContent(sr.ReadToEnd()).Wait();
         }
     }
 
