@@ -5,7 +5,7 @@ namespace RobotsParser
 {
     public class RobotsNotloadedException : Exception
     {
-        public RobotsNotloadedException() : base("Please call Load or LoadAsync.")
+        public RobotsNotloadedException() : base("Please call LoadRobotsFromUrl or LoadRobotsContent.")
         {
         }
 
