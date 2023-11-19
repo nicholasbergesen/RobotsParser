@@ -109,7 +109,7 @@ namespace RobotsParser
                 throw new ArgumentException($"Unable to create uri from: {robotsUrl}");
 
             _robotsContent = await WebRequest(robots.ToString());
-            if (!string.IsNullOrWhiteSpace(_robotsContent)) return false;
+            if (string.IsNullOrWhiteSpace(_robotsContent)) return false;
 
             await ParseRobots();
             return true;
