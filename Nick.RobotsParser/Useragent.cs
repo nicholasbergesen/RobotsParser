@@ -18,7 +18,7 @@ namespace RobotsParser
         public HashSet<string> Allowed { get; set; }
         public HashSet<string> Disallowed { get; set; }
         public bool IsAllowed(string path) => Allowed.Any(x => path.Contains(x));
-        private bool allDissallowed => Disallowed.Contains("/");
-        public bool IsDisallowed(string path) => allDissallowed || Disallowed.Any(x => path.Contains(x));
+        private bool AllDissallowed => Disallowed.Contains("/");
+        public bool IsDisallowed(string path) => AllDissallowed || Disallowed.Any(x => path.Contains(x));
     }
 }

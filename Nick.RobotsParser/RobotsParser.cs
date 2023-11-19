@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 
 namespace RobotsParser
@@ -29,40 +27,19 @@ namespace RobotsParser
         }
     }
 
-    public class Robots : IRobots, IDisposable
+    public class Robots : IRobots
     {
         private string? _robotsContent;
-        private readonly HttpClient _client;
         private readonly bool _supressSitemapErrors;
+        private readonly Func<string, Task<string>> _downloadFunc;
 
         public event ProgressEventHandler? OnProgress;
         public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
 
-        public Robots(string userAgent, bool supressSitemapErrors = false)
+        public Robots(Func<string, Task<string>> downloadFunc, bool supressSitemapErrors = false)
         {
             _supressSitemapErrors = supressSitemapErrors;
-            HttpClientHandler handler = new HttpClientHandler
-            {
-                AutomaticDecompression = System.Net.DecompressionMethods.All,
-                AllowAutoRedirect = true,
-                MaxAutomaticRedirections = 15,
-            };
-            _client = new HttpClient(handler, true);
-            _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xhtml+xml"));
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
-            _client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-ZA"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-GB"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US"));
-            _client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en"));
-            _client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
-            {
-                NoCache = true
-            };
-            _client.DefaultRequestHeaders.Connection.Add("keep-alive");
-            _client.DefaultRequestHeaders.Pragma.Add(new NameValueHeaderValue("no-cache"));
+            _downloadFunc = downloadFunc;
         }
 
         private void RaiseOnProgress(string progressMessage)
@@ -81,31 +58,47 @@ namespace RobotsParser
             _sitemaps ??= new HashSet<string>();
 
             string? line;
-            using (StringReader sr = new StringReader(_robotsContent))
+            using StringReader sr = new(_robotsContent);
+            Useragent currentAgent = new("*");
+            while ((line = await sr.ReadLineAsync()) != null)
             {
-                Useragent currentAgent = new Useragent("*");
-                while ((line = await sr.ReadLineAsync()) != null)
+                if (line.ToLower().StartsWith(Const.UserAgent.ToLower()))
                 {
-                    if (line.ToLower().StartsWith(Const.UserAgent.ToLower()))
-                    {
-                        string name = line.Substring(Const.UserAgentLength, line.Length - Const.UserAgentLength).Trim(' ');
-                        currentAgent = new Useragent(name);
-                        _userAgents.Add(currentAgent);
-                    }
-                    else if (line.ToLower().StartsWith(Const.Disallow))
-                        currentAgent.Disallowed.Add(line.Substring(Const.DisallowLength, line.Length - Const.DisallowLength).Trim(' '));
-                    else if (line.ToLower().StartsWith(Const.Allow))
-                        currentAgent.Allowed.Add(line.Substring(Const.AllowLength, line.Length - Const.AllowLength).Trim(' '));
-                    else if (line.ToLower().StartsWith(Const.Sitemap))
-                        _sitemaps.Add(line.Substring(Const.SitemapLength, line.Length - Const.SitemapLength).Trim(' '));
-                    else if (line.ToLower().StartsWith(Const.Crawldelay))
-                        currentAgent.Crawldelay = int.Parse(line.Substring(Const.CrawldelayLength, line.Length - Const.CrawldelayLength).Trim(' '));
-                    else if (line == string.Empty || line[0] == '#' || line == "<!DOCTYPE html> ")
-                        continue;
-                    else
-                        throw new Exception($"Unable to parse {line} in robots.txt");
+                    string name = line.Substring(Const.UserAgentLength, line.Length - Const.UserAgentLength).Trim(' ');
+                    currentAgent = new Useragent(name);
+                    _userAgents.Add(currentAgent);
                 }
+                else if (line.ToLower().StartsWith(Const.Disallow))
+                    currentAgent.Disallowed.Add(line.Substring(Const.DisallowLength, line.Length - Const.DisallowLength).Trim(' '));
+                else if (line.ToLower().StartsWith(Const.Allow))
+                    currentAgent.Allowed.Add(line.Substring(Const.AllowLength, line.Length - Const.AllowLength).Trim(' '));
+                else if (line.ToLower().StartsWith(Const.Sitemap))
+                    _sitemaps.Add(line.Substring(Const.SitemapLength, line.Length - Const.SitemapLength).Trim(' '));
+                else if (line.ToLower().StartsWith(Const.Crawldelay))
+                    currentAgent.Crawldelay = int.Parse(line.Substring(Const.CrawldelayLength, line.Length - Const.CrawldelayLength).Trim(' '));
+                else if (line == string.Empty || line[0] == '#' || line == "<!DOCTYPE html> ")
+                    continue;
+                else
+                    throw new Exception($"Unable to parse {line} in robots.txt");
             }
+        }
+
+        private async Task<string> WebRequest(string url)
+        {
+            try
+            {
+                return await _downloadFunc(url);
+            }
+            catch (HttpRequestException ex)
+            {
+                RaiseOnProgress($"Web request returned failed status code: {ex.StatusCode}\r\n{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                RaiseOnProgress($"Error during web request:\r\n{ex.Message}");
+            }
+
+            return string.Empty;
         }
 
         #region Interface Methods
@@ -115,18 +108,8 @@ namespace RobotsParser
             if (!Uri.TryCreate(robotsUrl, UriKind.Absolute, out Uri? robots))
                 throw new ArgumentException($"Unable to append robots.txt to {robotsUrl}");
 
-            try
-            {
-                var response = await _client.GetAsync(robots);
-                response.EnsureSuccessStatusCode();
-
-                _robotsContent = await response.Content.ReadAsStringAsync();
-            }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
+            _robotsContent = await WebRequest(robots.ToString());
+            if (!string.IsNullOrWhiteSpace(_robotsContent)) return false;
 
             await ParseRobots();
             return true;
@@ -145,7 +128,7 @@ namespace RobotsParser
             get
             {
                 if (_userAgents is null)
-                    throw new RobotsNotloadedException();
+                    throw new RobotsNotloadedException("Useragents is null");
                 return _userAgents;
             }
         }
@@ -156,7 +139,7 @@ namespace RobotsParser
             get
             {
                 if (_sitemaps is null)
-                    throw new RobotsNotloadedException();
+                    throw new RobotsNotloadedException("Sitemaps is null");
                 return _sitemaps;
             }
         }
@@ -218,8 +201,8 @@ namespace RobotsParser
             if (tSitemap is null)
                 throw new ArgumentNullException(nameof(tSitemap), "sitemap requires a value");
 
-            var bytes = await _client.GetByteArrayAsync(tSitemap.loc);
-            if (TryDeserializeXMLStream(bytes, out urlset? urlSet) && urlSet?.url is not null)
+            var response = await WebRequest(tSitemap.loc);
+            if (TryDeserializeXMLStream(response, out urlset? urlSet) && urlSet?.url is not null)
                 return urlSet.url;
             else if (!_supressSitemapErrors)
                 throw new Exception($"Unable to deserialize content from {tSitemap.loc} to type urlset");
@@ -231,8 +214,8 @@ namespace RobotsParser
 
         private async Task<IReadOnlyList<tSitemap>> GetSitemapsInternal(string sitemapUrl)
         {
-            var bytes = await _client.GetByteArrayAsync(sitemapUrl);
-            if (TryDeserializeXMLStream(bytes, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
+            var response = await _downloadFunc(sitemapUrl);
+            if (TryDeserializeXMLStream(response, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
                 return sitemapIndex.sitemap;
             else if (!_supressSitemapErrors)
                 throw new Exception($"Unable to deserialize content from {sitemapUrl} to type sitemapindex");
@@ -243,8 +226,8 @@ namespace RobotsParser
         private readonly List<tUrl> _sitemapLinks = new List<tUrl>(1000000);
         private async Task GetSitemapLinksInternal(string siteIndex)
         {
-            var bytes = await _client.GetByteArrayAsync(siteIndex);
-            if (TryDeserializeXMLStream(bytes, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
+            var response = await _downloadFunc(siteIndex);
+            if (TryDeserializeXMLStream(response, out sitemapindex? sitemapIndex) && sitemapIndex?.sitemap is not null)
             {
                 foreach (tSitemap sitemap in sitemapIndex.sitemap)
                 {
@@ -253,7 +236,7 @@ namespace RobotsParser
             }
             else
             {
-                if (TryDeserializeXMLStream(bytes, out urlset? urlSet) && urlSet?.url is not null)
+                if (TryDeserializeXMLStream(response, out urlset? urlSet) && urlSet?.url is not null)
                 {
                     _sitemapLinks.AddRange(urlSet.url.ToList());
                     RaiseOnProgress($"{_sitemapLinks.Count}");
@@ -261,16 +244,15 @@ namespace RobotsParser
             }
         }
 
-        private bool TryDeserializeXMLStream<T>(byte[] bytes, out T? xmlValue)
+        private bool TryDeserializeXMLStream<T>(string stringValue, out T? xmlValue)
         {
-            var stringVal = Encoding.UTF8.GetString(bytes);
-            stringVal = StripVersionFromString(stringVal);
+            stringValue = StripVersionFromString(stringValue);
 
-            using StringReader sr = new StringReader(stringVal);
+            using StringReader sr = new StringReader(stringValue);
             return TryDeserializeXMLStream(sr, out xmlValue);
         }
 
-        private bool TryDeserializeXMLStream<T>(TextReader reader, out T? xmlValue)
+        private static bool TryDeserializeXMLStream<T>(TextReader reader, out T? xmlValue)
         {
             try
             {
@@ -295,28 +277,6 @@ namespace RobotsParser
             if(endChar != -1)
                 return val.Remove(0, endChar + 2);
             return val;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~Robots()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (_client != null)
-                {
-                    _client.Dispose();
-                }
-            }
         }
     }
 }
