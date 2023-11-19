@@ -106,7 +106,7 @@ namespace RobotsParser
         public async Task<bool> LoadRobotsFromUrl(string robotsUrl)
         {
             if (!Uri.TryCreate(robotsUrl, UriKind.Absolute, out Uri? robots))
-                throw new ArgumentException($"Unable to append robots.txt to {robotsUrl}");
+                throw new ArgumentException($"Unable to create uri from: {robotsUrl}");
 
             _robotsContent = await WebRequest(robots.ToString());
             if (!string.IsNullOrWhiteSpace(_robotsContent)) return false;
