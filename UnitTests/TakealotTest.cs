@@ -2,14 +2,18 @@ using NUnit.Framework;
 using RobotsParser;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace UnitTests;
 
 public class TakealotTest
 {
-    private const string UserAgent = "FakeAgent";
+    private IRobots _robots = new Robots((url) => Download(url));
 
-    private IRobots _robots = new Robots(userAgent: UserAgent);
+    private static async Task<string> Download(string url)
+    {
+        return "";
+    }
 
     [SetUp]
     public void Setup()
