@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>Nick.RobotsParser</PackageId>
-    <Version>2.0.6</Version>
+    <Version>2.0.7</Version>
     <Authors>Nicholas Bergesen</Authors>
     <Company>Nicholas Bergesen</Company>
     <PackageReleaseNotes>

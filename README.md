@@ -3,14 +3,23 @@
 **Nuget Page**: https://www.nuget.org/packages/Nick.RobotsParser/
 
 ## Install options
-- Install-Package Nick.RobotsParser -Version 2.0.6
-- dotnet add package Nick.RobotsParser --version 2.0.6
+- Install-Package Nick.RobotsParser -Version 2.0.7
+- dotnet add package Nick.RobotsParser --version 2.0.7
 
 ## Example Snippets
 ### Load robots.txt
 ```
-var robots = new Robots(websiteUri: "https://websiteurl.com", userAgent: "my custom user agent");
-await robots.Load();
+public static async Task<string> GetHttpResponseBodyAsync(string url)
+{
+    using var httpClient = new HttpClient();
+    HttpResponseMessage response = await httpClient.GetAsync(url);
+    response.EnsureSuccessStatusCode();
+    string responseBody = await response.Content.ReadAsStringAsync();
+    return responseBody;
+}
+
+var robots = new Robots(downloadFunc: GetHttpResponseBodyAsync);
+await robots.LoadRobotsFromUrl("https://www.google.com/robots.txt");
 ```
 
 ### Get robots info
