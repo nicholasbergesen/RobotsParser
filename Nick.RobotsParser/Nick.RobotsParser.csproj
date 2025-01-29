@@ -15,5 +15,9 @@
 		https://github.com/nicholasbergesen/RobotsParser/blob/master/README.md
     </Description>
   </PropertyGroup>
+
+<ItemGroup>
+  <None Include="..\README.md" Pack="true" PackagePath="\"/>
+</ItemGroup>
   
 </Project>
