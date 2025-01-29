@@ -33,7 +33,7 @@ jobs:
     - name: Publish
       run: dotnet pack -c Release
     - name: Push to Nuget
-      run: dotnet nuget push ./Nick.RobotsParser/bin/Release/Nick.RobotsParser.2.0.6.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ./Nick.RobotsParser/bin/Release/Nick.RobotsParser.2.0.7.nupkg --api-key ${{ secrets.NUGETAPIKEY }} -s https://api.nuget.org/v3/index.json
 
   Create_Release:
     needs: Test
