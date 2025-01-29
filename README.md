@@ -3,8 +3,8 @@
 **Nuget Page**: https://www.nuget.org/packages/Nick.RobotsParser/
 
 ## Install options
-- Install-Package Nick.RobotsParser -Version 2.0.7
-- dotnet add package Nick.RobotsParser --version 2.0.7
+- Install-Package Nick.RobotsParser -Version 2.0.8
+- dotnet add package Nick.RobotsParser --version 2.0.8
 
 ## Example Snippets
 ### Load robots.txt
