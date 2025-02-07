@@ -1,0 +1,14 @@
+name: Matrix Test
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-20.04]
+        version: [10, 12, 14]
+        runner: [ self-hosted, ManagedDevOps.Pool=nick-mdp-pool-dev ]
+    runs-on: self-hosted
+    steps:
+      - name: Print
+        run: echo ${{ matrix }}
